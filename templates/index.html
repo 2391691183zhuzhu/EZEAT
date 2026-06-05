@@ -22,8 +22,9 @@
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <h1>🛒 EZEAT</h1>
         <div>
-            <button class="lang-btn active" onclick="setLang('en')">EN</button>
-            <button class="lang-btn" onclick="setLang('nl')">NL</button>
+            <button class="lang-btn active" onclick="setLang('en', this)">EN</button>
+            <button class="lang-btn" onclick="setLang('nl', this)">NL</button>
+            <button class="lang-btn" onclick="setLang('zh', this)">中文</button>
         </div>
     </div>
 
@@ -44,13 +45,14 @@
 
         var translations = {
             en: { saleTitle: 'This week on sale:', recipesWith: 'Recipes with', total: 'Total' },
-            nl: { saleTitle: 'Deze week in de aanbieding:', recipesWith: 'Recepten met', total: 'Totaal' }
+            nl: { saleTitle: 'Deze week in de aanbieding:', recipesWith: 'Recepten met', total: 'Totaal' },
+            zh: { saleTitle: '本周促销：', recipesWith: '可以用来做', total: '总价' }
         };
 
-        function setLang(l) {
+        function setLang(l, btn) {
             lang = l;
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+            btn.classList.add('active');
             document.getElementById('sale-title').innerText = translations[lang].saleTitle;
             document.getElementById('recipes').innerHTML = '';
             document.getElementById('cart').innerHTML = '';
@@ -62,9 +64,8 @@
             .then(recipes => {
                 let html = '<h2>' + translations[lang].recipesWith + ' ' + product + ':</h2>';
                 recipes.forEach(r => {
-                    let name = lang === 'en' ? r.en : r.nl;
-                    let key = r.en;
-                    html += '<div class="recipe" onclick="getIngredients(\'' + key + '\')">' + name + '</div>';
+                    let name = lang === 'nl' ? r.nl : lang === 'zh' ? r.zh : r.en;
+                    html += '<div class="recipe" onclick="getIngredients(\'' + r.en + '\')">' + name + '</div>';
                 });
                 document.getElementById('recipes').innerHTML = html;
             });

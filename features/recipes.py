@@ -1,18 +1,22 @@
 RECIPES = {
     "Tomato soup": {
         "nl": "Tomaten soep",
+        "zh": "番茄汤",
         "ingredients": ["Tomaten", "Uien"]
     },
     "Spaghetti bolognese": {
         "nl": "Spaghetti bolognese",
+        "zh": "意大利肉酱面",
         "ingredients": ["Spaghetti", "Gehakt 500g", "Tomaten", "Uien"]
     },
     "Egg with tomato": {
         "nl": "Ei met tomaat",
+        "zh": "西红柿炒鸡蛋",
         "ingredients": ["Eieren 12 stuks", "Tomaten"]
     },
     "Chicken curry": {
         "nl": "Kip curry",
+        "zh": "鸡肉咖喱",
         "ingredients": ["Kipfilet 500g", "Uien"]
     },
 }
