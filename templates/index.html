@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EZEAT</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        h1 { color: #e63946; }
+        .product { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; cursor: pointer; }
+        .product:hover { background: #fff3f3; }
+        .promo { color: green; font-weight: bold; }
+        .old-price { text-decoration: line-through; color: gray; }
+        .recipe { background: #e63946; color: white; padding: 10px; margin: 5px 0; border-radius: 6px; cursor: pointer; }
+        #cart { background: white; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .lang-btn { padding: 6px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; margin-right: 5px; }
+        .lang-btn.active { background: #e63946; color: white; }
+        .lang-btn:not(.active) { background: #ddd; color: #333; }
+    </style>
+</head>
+<body>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h1>🛒 EZEAT</h1>
+        <div>
+            <button class="lang-btn active" onclick="setLang('en')">EN</button>
+            <button class="lang-btn" onclick="setLang('nl')">NL</button>
+        </div>
+    </div>
+
+    <h2 id="sale-title">This week on sale:</h2>
+    {% for p in promos %}
+    <div class="product" onclick="getRecipes('{{ p.name }}')">
+        <b>{{ p.name }}</b> [{{ p.supermarket }}]<br>
+        <span class="old-price">€{{ p.price }}</span>
+        <span class="promo"> → €{{ p.promo_price }}</span>
+    </div>
+    {% endfor %}
+
+    <div id="recipes"></div>
+    <div id="cart"></div>
+
+    <script>
+        var lang = 'en';
+
+        var translations = {
+            en: { saleTitle: 'This week on sale:', recipesWith: 'Recipes with', total: 'Total' },
+            nl: { saleTitle: 'Deze week in de aanbieding:', recipesWith: 'Recepten met', total: 'Totaal' }
+        };
+
+        function setLang(l) {
+            lang = l;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('sale-title').innerText = translations[lang].saleTitle;
+            document.getElementById('recipes').innerHTML = '';
+            document.getElementById('cart').innerHTML = '';
+        }
+
+        function getRecipes(product) {
+            fetch('/recipes/' + product)
+            .then(r => r.json())
+            .then(recipes => {
+                let html = '<h2>' + translations[lang].recipesWith + ' ' + product + ':</h2>';
+                recipes.forEach(r => {
+                    let name = lang === 'en' ? r.en : r.nl;
+                    let key = r.en;
+                    html += '<div class="recipe" onclick="getIngredients(\'' + key + '\')">' + name + '</div>';
+                });
+                document.getElementById('recipes').innerHTML = html;
+            });
+        }
+
+        function getIngredients(recipe) {
+            fetch('/ingredients/' + recipe)
+            .then(r => r.json())
+            .then(data => {
+                let html = '<div><h2>🛒 ' + recipe + '</h2>';
+                data.ingredients.forEach(i => {
+                    html += '<p>' + i.name + ': €' + i.price.toFixed(2) + '</p>';
+                });
+                html += '<b>' + translations[lang].total + ': €' + data.total.toFixed(2) + '</b></div>';
+                document.getElementById('cart').innerHTML = html;
+            });
+        }
+    </script>
+</body>
+</html>
