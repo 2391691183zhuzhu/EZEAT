@@ -29,9 +29,16 @@
     </div>
 
     <h2 id="sale-title">This week on sale:</h2>
+
     {% for p in promos %}
     <div class="product" onclick="getRecipes('{{ p.name }}')">
-        <b>{{ p.name }}</b> [{{ p.supermarket }}]<br>
+        <b class="product-name"
+           data-nl="{{ p.name }}"
+           data-en="{{ names.get(p.name, {}).get('en', p.name) }}"
+           data-zh="{{ names.get(p.name, {}).get('zh', p.name) }}">
+           {{ names.get(p.name, {}).get('en', p.name) }}
+        </b>
+        [{{ p.supermarket }}]<br>
         <span class="old-price">€{{ p.price }}</span>
         <span class="promo"> → €{{ p.promo_price }}</span>
     </div>
@@ -42,7 +49,6 @@
 
     <script>
         var lang = 'en';
-
         var translations = {
             en: { saleTitle: 'This week on sale:', recipesWith: 'Recipes with', total: 'Total' },
             nl: { saleTitle: 'Deze week in de aanbieding:', recipesWith: 'Recepten met', total: 'Totaal' },
@@ -54,6 +60,9 @@
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('sale-title').innerText = translations[lang].saleTitle;
+            document.querySelectorAll('.product-name').forEach(el => {
+                el.innerText = lang === 'zh' ? el.dataset.zh : lang === 'nl' ? el.dataset.nl : el.dataset.en;
+            });
             document.getElementById('recipes').innerHTML = '';
             document.getElementById('cart').innerHTML = '';
         }
@@ -62,7 +71,7 @@
             fetch('/recipes/' + product)
             .then(r => r.json())
             .then(recipes => {
-                let html = '<h2>' + translations[lang].recipesWith + ' ' + product + ':</h2>';
+                let html = '<h2>' + translations[lang].recipesWith + ':</h2>';
                 recipes.forEach(r => {
                     let name = lang === 'nl' ? r.nl : lang === 'zh' ? r.zh : r.en;
                     html += '<div class="recipe" onclick="getIngredients(\'' + r.en + '\')">' + name + '</div>';
@@ -77,7 +86,8 @@
             .then(data => {
                 let html = '<div><h2>🛒 ' + recipe + '</h2>';
                 data.ingredients.forEach(i => {
-                    html += '<p>' + i.name + ': €' + i.price.toFixed(2) + '</p>';
+                    let name = lang === 'zh' ? i.zh : lang === 'nl' ? i.name : i.en;
+                    html += '<p>' + name + ': €' + i.price.toFixed(2) + '</p>';
                 });
                 html += '<b>' + translations[lang].total + ': €' + data.total.toFixed(2) + '</b></div>';
                 document.getElementById('cart').innerHTML = html;
